@@ -1,0 +1,27 @@
+Subject: Data Model & Quality Review – Initial Findings and Next Steps
+
+Hi,
+
+I’ve completed an initial review of our unstructured JSON data and have developed a structured, relational model to support our reporting needs. Here’s a brief overview:
+
+Data Model:
+
+We’re modeling the core entities as Users, Receipts, and Brands (with an optional Receipt_Items table for item-level details).
+This model supports our upcoming queries on monthly receipts, spend analyses, and user-specific transaction breakdowns.
+Queries:
+
+I’ve developed SQL queries to identify the top 5 brands by receipts scanned in the most recent month.
+Additionally, I compared average spend on receipts with ‘Accepted’ versus ‘Rejected’ statuses to understand performance differences.
+Data Quality Issues:
+
+I identified some potential issues such as negative spend values, missing brand references, and duplicate user records.
+These were uncovered by running SQL checks (and further confirmed via Python scripts). I’d appreciate further context on how these fields are expected to behave (e.g., is a negative spend an error or a valid refund?).
+Questions & Next Steps:
+
+Data Clarifications: Could you confirm if there are any business rules around negative totals or if missing brand IDs should be automatically corrected?
+Data Quality Resolution: Do we have source system insights to verify these anomalies? I’m happy to work with the source teams to correct or flag these issues.
+Scaling & Performance: As data volume grows, we may need to consider partitioning our Receipts table by month and indexing frequently joined keys (like brand_id and user_id) to ensure query performance.
+I look forward to discussing these points and further optimizing our data assets.
+
+Best regards,
+
