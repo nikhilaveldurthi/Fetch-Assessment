@@ -1,0 +1,288 @@
+
+-- Create Users Table: 
+CREATE TABLE users (
+    user_id SERIAL PRIMARY KEY,
+    created_date TIMESTAMP NOT NULL
+    
+);
+
+-- Create Brands Table: 
+CREATE TABLE brands (
+    brand_id SERIAL PRIMARY KEY,
+    brand_name VARCHAR(100) NOT NULL
+    
+);
+
+-- Create Receipts Table: 
+CREATE TABLE receipts (
+    receipt_id SERIAL PRIMARY KEY,
+    scanned_date TIMESTAMP NOT NULL,
+    total_spend NUMERIC(10,2) NOT NULL,
+    rewardsReceiptStatus VARCHAR(50),
+    brand_id INT REFERENCES brands(brand_id),
+    user_id INT REFERENCES users(user_id)
+    
+);
+
+-- Create Receipt_Items Table: 
+CREATE TABLE receipt_items (
+    item_id SERIAL PRIMARY KEY,
+    receipt_id INT REFERENCES receipts(receipt_id),
+    quantity INT NOT NULL,
+    item_price NUMERIC(10,2)
+    
+);
+
+COMMIT;  
+
+-- Insert sample users.
+INSERT INTO users (created_date) VALUES
+    (now() - interval '2 months'),  -- user_id = 1 (recent)
+    (now() - interval '7 months'),  -- user_id = 2 (older)
+    (now() - interval '1 month'),   -- user_id = 3 (recent)
+    (now() - interval '5 months'),  -- user_id = 4 (recent)
+    (now() - interval '8 months');  -- user_id = 5 (older)
+
+INSERT INTO brands (brand_name) VALUES
+    ('Brand A'), -- brand_id = 1
+    ('Brand B'), -- brand_id = 2
+    ('Brand C'), -- brand_id = 3
+    ('Brand D'), -- brand_id = 4 (for variety)
+    ('Brand E'); -- brand_id = 5
+
+INSERT INTO receipts (scanned_date, total_spend, rewardsReceiptStatus, brand_id, user_id) VALUES
+    
+    (now() - interval '10 days', 100, 'Accepted', 1, 1), -- recent user
+    (now() - interval '10 days', 200, 'Rejected', 2, 3), -- recent user
+    (now() - interval '8 days', 150, 'Accepted', 1, 1),  -- recent user
+    (now() - interval '8 days', 180, 'Rejected', 3, 4),  -- recent user
+    (now() - interval '10 days', 120, 'Accepted', 2, 1), -- recent user
+    (now() - interval '10 days', 220, 'Rejected', 1, 4), -- recent user
+
+    
+    (now() - interval '40 days', 250, 'Accepted', 3, 2), -- older user
+    (now() - interval '38 days', 190, 'Rejected', 2, 2), -- older user
+    (now() - interval '35 days', 210, 'Accepted', 4, 5), -- older user
+    (now() - interval '32 days', 230, 'Rejected', 5, 5), -- older user
+    (now() - interval '36 days', 160, 'Accepted', 2, 2), -- older user
+    (now() - interval '34 days', 175, 'Rejected', 3, 2); -- older user
+
+-- Insert sample receipt items.
+INSERT INTO receipt_items (receipt_id, quantity, item_price) VALUES
+    
+    (1, 2, 50),    
+    (1, 1, 50),    
+    (2, 3, 66.67), 
+    (3, 1, 150),   
+    (4, 4, 45),    
+    (5, 2, 60),    
+    (6, 5, 44),    
+    -- For receipts in the previous month
+    (7, 2, 125),   
+    (8, 3, 63.33), 
+    (9, 4, 52.50), 
+    (10, 1, 230),  
+    (11, 2, 80),   
+    (12, 3, 58.33);
+
+
+/* Query 1:
+   What are the top 5 brands by receipts scanned for the most recent month?
+*/
+WITH recent_month AS (
+    SELECT date_trunc('month', MAX(scanned_date)) AS month_start
+    FROM receipts
+)
+SELECT 
+    b.brand_name, 
+    COUNT(r.receipt_id) AS receipt_count
+FROM receipts r
+JOIN brands b ON r.brand_id = b.brand_id
+JOIN recent_month rm ON date_trunc('month', r.scanned_date) = rm.month_start
+GROUP BY b.brand_name
+ORDER BY receipt_count DESC
+LIMIT 5;
+
+/* Query 2:
+   How does the ranking of the top 5 brands by receipts scanned for the recent month
+   compare to the ranking for the previous month?
+*/
+WITH 
+recent_month AS (
+    SELECT date_trunc('month', MAX(scanned_date)) AS month_start
+    FROM receipts
+),
+previous_month AS (
+    -- previous month is derived by subtracting one month from the most recent month start date
+    SELECT (date_trunc('month', MAX(scanned_date)) - interval '1 month') AS month_start
+    FROM receipts
+),
+recent_ranking AS (
+    SELECT 
+        b.brand_name, 
+        COUNT(r.receipt_id) AS receipt_count,
+        RANK() OVER (ORDER BY COUNT(r.receipt_id) DESC) AS rank
+    FROM receipts r
+    JOIN brands b ON r.brand_id = b.brand_id
+    JOIN recent_month rm ON date_trunc('month', r.scanned_date) = rm.month_start
+    GROUP BY b.brand_name
+    ORDER BY receipt_count DESC
+    LIMIT 5
+),
+previous_ranking AS (
+    SELECT 
+        b.brand_name, 
+        COUNT(r.receipt_id) AS receipt_count,
+        RANK() OVER (ORDER BY COUNT(r.receipt_id) DESC) AS rank
+    FROM receipts r
+    JOIN brands b ON r.brand_id = b.brand_id
+    JOIN previous_month pm ON date_trunc('month', r.scanned_date) = pm.month_start
+    GROUP BY b.brand_name
+    ORDER BY receipt_count DESC
+    LIMIT 5
+)
+-- Join the two rankings 
+SELECT 
+    COALESCE(r.brand_name, p.brand_name) AS brand_name,
+    r.receipt_count AS recent_receipts,
+    r.rank AS recent_rank,
+    p.receipt_count AS previous_receipts,
+    p.rank AS previous_rank
+FROM recent_ranking r
+FULL OUTER JOIN previous_ranking p ON r.brand_name = p.brand_name
+ORDER BY COALESCE(r.rank, p.rank);
+
+
+/* Query 3:
+   When considering average spend from receipts with rewardsReceiptStatus of 'Accepted' or 'Rejected',
+   which is greater?
+*/
+WITH avg_spend AS (
+    SELECT 
+        rewardsReceiptStatus, 
+        AVG(total_spend) AS avg_spend
+    FROM receipts
+    WHERE rewardsReceiptStatus IN ('Accepted', 'Rejected')
+    GROUP BY rewardsReceiptStatus
+)
+SELECT
+    CASE 
+        WHEN MAX(CASE WHEN rewardsReceiptStatus = 'Accepted' THEN avg_spend END) > 
+             MAX(CASE WHEN rewardsReceiptStatus = 'Rejected' THEN avg_spend END)
+        THEN 'Accepted receipts have a higher average spend'
+        WHEN MAX(CASE WHEN rewardsReceiptStatus = 'Accepted' THEN avg_spend END) < 
+             MAX(CASE WHEN rewardsReceiptStatus = 'Rejected' THEN avg_spend END)
+        THEN 'Rejected receipts have a higher average spend'
+        ELSE 'Both statuses have equal average spend'
+    END AS spend_comparison,
+    MAX(CASE WHEN rewardsReceiptStatus = 'Accepted' THEN avg_spend END) AS accepted_avg_spend,
+    MAX(CASE WHEN rewardsReceiptStatus = 'Rejected' THEN avg_spend END) AS rejected_avg_spend
+FROM avg_spend;
+
+-------------------------------------------------
+/* Query 4:
+   When considering total number of items purchased from receipts with rewardsReceiptStatus of
+   'Accepted' or 'Rejected', which is greater?
+*/
+WITH item_totals AS (
+    SELECT 
+        r.rewardsReceiptStatus,
+        SUM(ri.quantity) AS total_items
+    FROM receipts r
+    JOIN receipt_items ri ON r.receipt_id = ri.receipt_id
+    WHERE r.rewardsReceiptStatus IN ('Accepted', 'Rejected')
+    GROUP BY r.rewardsReceiptStatus
+)
+SELECT rewardsReceiptStatus, total_items
+FROM item_totals
+ORDER BY total_items DESC
+LIMIT 1;
+
+-------------------------------------------------
+/* Query 5:
+   Which brand has the most spend among users who were created within the past 6 months?
+*/
+WITH recent_users_receipts AS (
+    SELECT r.*, b.brand_name
+    FROM receipts r
+    JOIN users u ON r.user_id = u.user_id
+    JOIN brands b ON r.brand_id = b.brand_id
+    WHERE u.created_date >= now() - interval '6 months'
+)
+SELECT brand_name, SUM(total_spend) AS total_spend
+FROM recent_users_receipts
+GROUP BY brand_name
+ORDER BY total_spend DESC
+LIMIT 1;
+
+-------------------------------------------------
+/* Query 6:
+   Which brand has the most transactions among users who were created within the past 6 months?
+*/
+WITH recent_users_receipts AS (
+    SELECT r.*, b.brand_name
+    FROM receipts r
+    JOIN users u ON r.user_id = u.user_id
+    JOIN brands b ON r.brand_id = b.brand_id
+    WHERE u.created_date >= now() - interval '6 months'
+)
+SELECT brand_name, COUNT(receipt_id) AS transaction_count
+FROM recent_users_receipts
+GROUP BY brand_name
+ORDER BY transaction_count DESC
+LIMIT 1;
+-- 1. Check for Missing (NULL) Values in Critical Columns
+-- (For receipts, we assume that scanned_date, total_spend, rewardsReceiptStatus, brand_id, and user_id should not be null.)
+SELECT 'Missing Values in receipts' AS issue, *
+FROM receipts
+WHERE scanned_date IS NULL
+   OR total_spend IS NULL
+   OR rewardsReceiptStatus IS NULL
+   OR brand_id IS NULL
+   OR user_id IS NULL;
+
+---------------------------------------------------------
+-- 2. Check for Duplicate Records Based on Primary Key (receipt_id)
+-- Even though receipt_id is defined as a primary key, sometimes data loads might duplicate data if not enforced.
+SELECT receipt_id, COUNT(*) AS duplicate_count
+FROM receipts
+GROUP BY receipt_id
+HAVING COUNT(*) > 1;
+
+---------------------------------------------------------
+-- 3. Check for Negative Numeric Values
+-- For example, total_spend is expected to be non-negative (unless negative values represent refunds).
+SELECT 'Negative total_spend values' AS issue, *
+FROM receipts
+WHERE total_spend < 0;
+
+---------------------------------------------------------
+-- 4. Check for Dates in the Future
+-- scanned_date should not be in the future (unless that's expected in your use case).
+SELECT 'Future scanned_date values' AS issue, *
+FROM receipts
+WHERE scanned_date > now();
+
+---------------------------------------------------------
+-- 5. Check for Unexpected Values in rewardsReceiptStatus
+-- We expect only 'Accepted' or 'Rejected' values.
+SELECT rewardsReceiptStatus, COUNT(*) AS count
+FROM receipts
+GROUP BY rewardsReceiptStatus
+HAVING rewardsReceiptStatus NOT IN ('Accepted', 'Rejected');
+
+---------------------------------------------------------
+-- 6. Check for Invalid Foreign Key References to Brands
+-- Find receipts with a brand_id that does not exist in the brands table.
+SELECT r.receipt_id, r.brand_id
+FROM receipts r
+LEFT JOIN brands b ON r.brand_id = b.brand_id
+WHERE b.brand_id IS NULL;
+
+---------------------------------------------------------
+-- 7. Check for Invalid Foreign Key References to Users
+-- Find receipts with a user_id that does not exist in the users table.
+SELECT r.receipt_id, r.user_id
+FROM receipts r
+LEFT JOIN users u ON r.user_id = u.user_id
+WHERE u.user_id IS NULL;
