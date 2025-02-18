@@ -39,5 +39,6 @@ This exercise successfully accomplished the following:
 • Performed thorough data quality checks, confirming the integrity of the data
 • Prepared clear communication for business stakeholders, outlining findings, questions, and future optimization steps
 
-All relevant documents, SQL scripts, and stakeholder communications have been committed to the GitHub repository as part of the overall exercise deliverable. <img width="792" alt="Screenshot 2025-02-18 at 10 34 49 AM" src="https://github.com/user-attachments/assets/5e939aa0-e9ec-43e9-80bb-32e87c803ef3" />
+All relevant documents, SQL scripts, and stakeholder communications have been committed to the GitHub repository as part of the overall exercise deliverable.
+<img width="792" alt="Screenshot 2025-02-18 at 10 34 49 AM" src="https://github.com/user-attachments/assets/5e939aa0-e9ec-43e9-80bb-32e87c803ef3" />
 
