@@ -1,0 +1,9 @@
+Based on the queries we ran, getting 0 rows for each check means that no issues were found under the conditions we specified. In other words, the output indicates:
+
+No missing values in the critical columns.
+No duplicate receipt_id values.
+No negative values for total_spend.
+No dates in the future in scanned_date.
+No unexpected values in rewardsreceiptstatus.
+No invalid foreign key references to either brands or users.
+
