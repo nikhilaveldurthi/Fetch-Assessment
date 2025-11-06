@@ -1,0 +1,47 @@
+2025-02-18 10:00:00 UTC [1234] LOG:  database system was shut down at 2025-02-18 09:59:55 UTC
+2025-02-18 10:00:01 UTC [1234] LOG:  database system is ready to accept connections
+2025-02-18 10:05:15 UTC [5678] LOG:  checkpoint starting: time
+2025-02-18 10:05:18 UTC [5678] LOG:  checkpoint complete: wrote 245 buffers (1.5%)
+2025-02-18 10:10:30 UTC [9012] ERROR:  duplicate key value violates unique constraint "users_pkey"
+2025-02-18 10:10:30 UTC [9012] DETAIL:  Key (user_id)=(12345) already exists.
+2025-02-18 10:10:30 UTC [9012] STATEMENT:  INSERT INTO users (user_id, created_date) VALUES (12345, '2025-02-18')
+2025-02-18 10:15:45 UTC [9013] WARNING:  terminating connection due to administrator command
+2025-02-18 10:16:00 UTC [9014] FATAL:  password authentication failed for user "app_user"
+2025-02-18 10:16:00 UTC [9014] DETAIL:  Connection matched pg_hba.conf line 95: "host all all 0.0.0.0/0 md5"
+2025-02-18 10:20:15 UTC [9015] ERROR:  relation "receipts_items" does not exist
+2025-02-18 10:20:15 UTC [9015] STATEMENT:  SELECT * FROM receipts_items WHERE receipt_id = 98765
+2025-02-18 10:25:30 UTC [9016] ERROR:  syntax error at or near "SELCT"
+2025-02-18 10:25:30 UTC [9016] STATEMENT:  SELCT * FROM users WHERE user_id = 100
+2025-02-18 10:30:45 UTC [9017] ERROR:  deadlock detected
+2025-02-18 10:30:45 UTC [9017] DETAIL:  Process 9017 waits for ShareLock on transaction 12345; blocked by process 9018.
+2025-02-18 10:30:45 UTC [9017] DETAIL:  Process 9018 waits for ShareLock on transaction 12346; blocked by process 9017.
+2025-02-18 10:30:45 UTC [9017] HINT:  See server log for query details.
+2025-02-18 10:30:45 UTC [9017] CONTEXT:  while updating tuple (0,1) in relation "receipts"
+2025-02-18 10:30:45 UTC [9017] STATEMENT:  UPDATE receipts SET total_spend = 250.00 WHERE receipt_id = 100
+2025-02-18 10:35:00 UTC [9019] ERROR:  column "invalid_column" does not exist
+2025-02-18 10:35:00 UTC [9019] STATEMENT:  SELECT invalid_column FROM brands
+2025-02-18 10:40:15 UTC [9020] ERROR:  insert or update on table "receipts" violates foreign key constraint "receipts_brand_id_fkey"
+2025-02-18 10:40:15 UTC [9020] DETAIL:  Key (brand_id)=(99999) is not present in table "brands".
+2025-02-18 10:40:15 UTC [9020] STATEMENT:  INSERT INTO receipts (scanned_date, total_spend, brand_id, user_id) VALUES ('2025-02-18', 100.00, 99999, 1)
+2025-02-18 10:45:30 UTC [9021] PANIC:  could not write to file "pg_wal/xlogtemp.9021": No space left on device
+2025-02-18 10:45:31 UTC [1234] LOG:  server process (PID 9021) was terminated by signal 6: Aborted
+2025-02-18 10:45:31 UTC [1234] DETAIL:  Failed process was running: INSERT INTO receipts VALUES (...)
+2025-02-18 10:45:31 UTC [1234] LOG:  terminating any other active server processes
+2025-02-18 10:45:32 UTC [1234] LOG:  all server processes terminated; reinitializing
+2025-02-18 10:45:35 UTC [9025] LOG:  database system was interrupted; last known up at 2025-02-18 10:45:30 UTC
+2025-02-18 10:45:38 UTC [9025] LOG:  database system was not properly shut down; automatic recovery in progress
+2025-02-18 10:45:39 UTC [9025] LOG:  redo starts at 0/1A000028
+2025-02-18 10:45:40 UTC [9025] LOG:  invalid record length at 0/1A000100: wanted 24, got 0
+2025-02-18 10:45:40 UTC [9025] LOG:  redo done at 0/1A000068
+2025-02-18 10:45:41 UTC [9025] LOG:  database system is ready to accept connections
+2025-02-18 10:50:00 UTC [9026] ERROR:  canceling statement due to statement timeout
+2025-02-18 10:50:00 UTC [9026] STATEMENT:  SELECT COUNT(*) FROM receipts r JOIN users u ON r.user_id = u.user_id WHERE u.created_date > '2020-01-01'
+2025-02-18 10:55:15 UTC [9027] WARNING:  out of shared memory
+2025-02-18 10:55:15 UTC [9027] HINT:  You might need to increase max_locks_per_transaction.
+2025-02-18 11:00:30 UTC [9028] ERROR:  permission denied for table users
+2025-02-18 11:00:30 UTC [9028] STATEMENT:  SELECT * FROM users
+2025-02-18 11:05:45 UTC [9029] LOG:  duration: 15234.567 ms  statement: SELECT * FROM receipts WHERE scanned_date BETWEEN '2024-01-01' AND '2025-12-31'
+2025-02-18 11:10:00 UTC [9030] ERROR:  value too long for type character varying(50)
+2025-02-18 11:10:00 UTC [9030] STATEMENT:  INSERT INTO brands (brand_name) VALUES ('This is a very long brand name that exceeds the maximum allowed length of 50 characters')
+2025-02-18 11:15:15 UTC [9031] WARNING:  connection to server was lost
+2025-02-18 11:15:16 UTC [9031] FATAL:  connection to server was lost

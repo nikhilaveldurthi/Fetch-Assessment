@@ -1,0 +1,52 @@
+2025-02-18 10:15:23 INFO Starting application server on port 8080
+2025-02-18 10:15:24 INFO Database connection pool initialized
+2025-02-18 10:15:25 INFO Application started successfully
+2025-02-18 10:16:30 INFO Processing request for user_id: 12345
+2025-02-18 10:16:31 INFO Query executed successfully in 45ms
+2025-02-18 10:17:45 WARNING Database connection pool is 80% full
+2025-02-18 10:18:12 ERROR Failed to connect to database: Connection refused
+2025-02-18 10:18:12 ERROR Retrying database connection (attempt 1/3)
+2025-02-18 10:18:13 INFO Database connection established
+2025-02-18 10:19:23 ERROR: duplicate key value violates unique constraint "users_pkey"
+2025-02-18 10:19:23 DETAIL: Key (user_id)=(12345) already exists.
+2025-02-18 10:20:15 INFO Processing receipt scan for receipt_id: 98765
+2025-02-18 10:21:30 WARNING Query execution time exceeded threshold: 2.5s
+2025-02-18 10:22:45 ERROR Null pointer exception in rewards calculation module
+2025-02-18 10:22:45 Traceback (most recent call last):
+2025-02-18 10:22:45   File "rewards.py", line 145, in calculate_points
+2025-02-18 10:22:45     points = receipt.total_spend * multiplier
+2025-02-18 10:22:45 AttributeError: 'NoneType' object has no attribute 'total_spend'
+2025-02-18 10:23:00 INFO Request processed successfully
+2025-02-18 10:24:15 ERROR PostgreSQL ERROR: relation "receipts_items" does not exist
+2025-02-18 10:24:15 LINE 1: SELECT * FROM receipts_items WHERE receipt_id = 98765
+2025-02-18 10:25:30 CRITICAL Out of memory: Cannot allocate 2GB for query result set
+2025-02-18 10:25:31 FATAL System shutting down due to memory exhaustion
+2025-02-18 10:26:00 INFO Application restarted
+2025-02-18 10:27:15 ERROR HTTP 500 Internal Server Error at /api/receipts/scan
+2025-02-18 10:27:16 ERROR Stack trace: 
+2025-02-18 10:27:16   at processReceipt (/app/services/receipt-processor.js:234:12)
+2025-02-18 10:27:16   at async handleRequest (/app/routes/api.js:89:5)
+2025-02-18 10:28:30 WARNING Database deadlock detected
+2025-02-18 10:28:30 ERROR Process 12345 deadlock: Process 12345 waits for ShareLock on transaction 67890
+2025-02-18 10:28:30 ERROR Process 67890 waits for ShareLock on transaction 12345
+2025-02-18 10:29:00 INFO Deadlock resolved, transaction rolled back
+2025-02-18 10:30:15 ERROR Permission denied: Cannot write to /var/log/receipts/
+2025-02-18 10:31:20 INFO User authentication successful for user: john.doe@fetch.com
+2025-02-18 10:32:30 ERROR HTTP 404 Not Found: /api/brands/99999
+2025-02-18 10:33:45 ERROR Connection timeout while connecting to external API
+2025-02-18 10:34:00 WARNING Retry limit exceeded for external service call
+2025-02-18 10:35:15 ERROR Foreign key violation: brand_id=99999 does not exist in brands table
+2025-02-18 10:36:30 INFO Cache cleared successfully
+2025-02-18 10:37:45 ERROR Failed to parse JSON request body: Unexpected token at position 45
+2025-02-18 10:38:00 INFO Request rate: 1250 requests/minute
+2025-02-18 10:39:15 CRITICAL Panic: goroutine stack exceeds 1GB limit
+2025-02-18 10:40:30 ERROR Database syntax error: SELECT * FROM users WHERE created_date > 'invalid-date'
+2025-02-18 10:41:45 INFO Cleanup job started
+2025-02-18 10:42:00 INFO Processing 5000 receipts for monthly aggregation
+2025-02-18 10:43:15 WARNING Memory usage at 85% of available heap
+2025-02-18 10:44:30 ERROR Assertion failed: total_spend should never be negative (got -150.00)
+2025-02-18 10:45:45 INFO Database backup completed successfully
+2025-02-18 10:46:00 ERROR HTTP 503 Service Unavailable: Database connection pool exhausted
+2025-02-18 10:47:15 INFO Health check passed
+2025-02-18 10:48:30 ERROR Exception in thread "pool-1-thread-5": java.lang.NullPointerException
+2025-02-18 10:49:45 INFO Shutting down gracefully
