@@ -105,18 +105,17 @@ class LogAnalyzer:
                 self.error_summary[error_type] += 1
         
         # Check HTTP error codes
-        if re.search(self.http_error_pattern, line):
-            match = re.search(self.http_error_pattern, line)
-            if match:
-                status_code = match.group(1)
-                error_type = f'HTTP_{status_code}'
-                self.errors_found.append({
-                    'line_number': line_num,
-                    'error_type': error_type,
-                    'content': line.strip(),
-                    'severity': 'HIGH' if status_code.startswith('5') else 'MEDIUM'
-                })
-                self.error_summary[error_type] += 1
+        match = re.search(self.http_error_pattern, line)
+        if match:
+            status_code = match.group(1)
+            error_type = f'HTTP_{status_code}'
+            self.errors_found.append({
+                'line_number': line_num,
+                'error_type': error_type,
+                'content': line.strip(),
+                'severity': 'HIGH' if status_code.startswith('5') else 'MEDIUM'
+            })
+            self.error_summary[error_type] += 1
     
     def _get_severity(self, error_type: str) -> str:
         """Determine severity level based on error type."""
