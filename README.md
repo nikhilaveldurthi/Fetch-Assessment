@@ -2,6 +2,28 @@
 
 # Project Execution Overview
 
+## NEW: Log Analysis Expert Tool
+
+A powerful Python-based log analyzer has been added to help identify errors and issues in application and database logs.
+
+**Key Features:**
+- Detects errors, exceptions, and critical issues in log files
+- Specialized PostgreSQL database log analysis
+- HTTP error code detection (4xx, 5xx)
+- Severity classification (CRITICAL, HIGH, MEDIUM)
+- Expert diagnosis and recommendations
+- Zero external dependencies - pure Python!
+
+**Quick Start:**
+```bash
+python3 log_analyzer.py sample_logs/application.log
+python3 log_analyzer.py sample_logs/postgresql.log
+```
+
+For detailed documentation, see [LOG_ANALYZER_README.md](LOG_ANALYZER_README.md)
+
+---
+
 Objectives
 
 Data Modeling and Transformation
@@ -38,7 +60,8 @@ This exercise successfully accomplished the following:
 • Created and tested SQL queries to address six critical business questions
 • Performed thorough data quality checks, confirming the integrity of the data
 • Prepared clear communication for business stakeholders, outlining findings, questions, and future optimization steps
+• **NEW**: Created a comprehensive log analysis tool that acts as an expert in identifying errors from application and database logs
 
-All relevant documents, SQL scripts, and stakeholder communications have been committed to the GitHub repository as part of the overall exercise deliverable.
+All relevant documents, SQL scripts, log analysis tools, and stakeholder communications have been committed to the GitHub repository as part of the overall exercise deliverable.
 <img width="792" alt="Screenshot 2025-02-18 at 10 34 49 AM" src="https://github.com/user-attachments/assets/5e939aa0-e9ec-43e9-80bb-32e87c803ef3" />
 
